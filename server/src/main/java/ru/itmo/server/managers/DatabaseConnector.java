@@ -46,7 +46,7 @@ public class DatabaseConnector implements Accessible {
         this("pg", name, password);
     }
 
-    public DatabaseConnector() throws SQLException, SQLTimeoutException { 
+    public DatabaseConnector() throws SQLException, SQLTimeoutException {
         connection = DriverManager.getConnection("jdbc:postgresql://pg:5432/studs");
     }
 
