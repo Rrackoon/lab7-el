@@ -29,7 +29,7 @@ public class Main {
         Printer printer = new StandardPrinter();
         IOProvider provider = new IOProvider(scanner, printer);
         CommandManager commandmanager = new CommandManager(provider);
-        UDPConnector connector = new UDPConnector("localhost", 9999);
+        UDPConnector connector = new UDPConnector("localhost", 3940);
         UDPSender sender = new UDPSender(connector.getDatagramSocket(), connector.getServerAddress(), connector.getServerPort());
         UDPReader reader = new UDPReader(connector.getDatagramSocket());
         Console console = new Console(commandmanager, sender, reader, provider);
