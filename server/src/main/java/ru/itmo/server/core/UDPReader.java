@@ -20,19 +20,37 @@ import java.util.concurrent.ExecutorService;
 public class UDPReader extends Thread {
     private static final Logger logger = LoggerFactory.getLogger(UDPReader.class);
 
+    // Статическая строка для хранения входящих данных
     public static String in_string;
+
     @Setter
+    // Коллекция для управления StudyGroup
     public static CollectionManager<StudyGroup> collection;
+
     @Setter
+    // Менеджер команд
     public static CommandManager commandManager;
+
+    // Буфер для чтения данных из UDP-пакетов
     private ByteBuffer in_buffer;
+
+    // Канал для получения данных
     private DatagramChannel channel;
+
+    // Адрес клиента
     private SocketAddress client;
+
+    // Объект команды, который будет десериализован из входящего пакета
     private CommandShallow shallow;
+
+    // Ключ выбора для управления каналом
     private SelectionKey key;
+
+    // Пулы потоков для обработки и отправки данных
     private ExecutorService handlerPool;
     private ExecutorService senderPool;
 
+    // Конструктор для инициализации необходимых компонентов
     public UDPReader(SelectionKey key, ExecutorService handlerPool, ExecutorService senderPool) throws Exception {
         this.key = key;
         in_string = "";
@@ -42,11 +60,12 @@ public class UDPReader extends Thread {
         this.senderPool = senderPool;
     }
 
-    //получение последней полученной команды
+    // Получение последней полученной команды
     public CommandShallow getShallow() {
         return shallow;
     }
 
+    // Получение адреса клиента
     public SocketAddress getClient() {
         return this.client;
     }
@@ -54,31 +73,45 @@ public class UDPReader extends Thread {
     @Override
     public void run() {
         try {
+            // Получение данных от клиента
             client = receive();
         } catch (Exception e) {
             logger.error("Error during receive: {}", e.getMessage(), e);
         } finally {
+            // Установка интересующих операций для ключа и пробуждение селектора
             key.interestOps(key.interestOps() | SelectionKey.OP_READ);
             key.selector().wakeup();
         }
     }
 
+    // Метод для получения данных от клиента
     public SocketAddress receive() {
         try {
+            // Выделение буфера для получения данных
             in_buffer = ByteBuffer.allocate(65507);
             client = channel.receive(in_buffer);
-            byte[] data = new byte[in_buffer.position()];  // Копирование данных из буфера в массив байтов
+
+            // Копирование данных из буфера в массив байтов
+            byte[] data = new byte[in_buffer.position()];
             System.arraycopy(in_buffer.array(), 0, data, 0, in_buffer.position());
+
             // Создание потока для чтения объектов из массива байтов
             ByteArrayInputStream bis = new ByteArrayInputStream(data);
             ObjectInput in = new ObjectInputStream(bis);
+
+            // Установка интересующих операций для ключа и пробуждение селектора
             key.interestOps(key.interestOps() | SelectionKey.OP_READ);
             key.selector().wakeup();
-            // Десериализация команды
+
+            // Десериализация команды из входящих данных
             shallow = (CommandShallow) in.readObject();
             System.out.println("Получена команда:" + shallow.getCommand());
             logger.info("Command received: " + shallow.getCommand());
+
+            // Очистка буфера после обработки данных
             in_buffer.clear();
+
+            // Создание обработчика для выполнения команды и отправка его в пул потоков
             Handler handler = new Handler(
                     shallow,
                     key,
@@ -90,9 +123,5 @@ public class UDPReader extends Thread {
             logger.error("Error receiving UDP data: " + e.getMessage(), e);
         }
         return client;
-
-
     }
-
-
 }

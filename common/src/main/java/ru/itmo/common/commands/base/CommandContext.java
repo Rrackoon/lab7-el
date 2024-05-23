@@ -13,8 +13,8 @@ public class CommandContext {
     private IOProvider ioProvider;
 
     public CommandContext(String args, StudyGroup studyGroup,
-                          CollectionManager collectionManager,
-                          String login, String password) {
+                      CollectionManager collectionManager,
+                      String login, String password) {
         this.args = args;
         this.studyGroup = studyGroup;
         this.collectionManager = collectionManager;

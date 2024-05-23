@@ -23,18 +23,28 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Console {
+    // Логгер для записи логов
     private static final Logger logger = LoggerFactory.getLogger(Console.class);
+    // Флаг активности консоли
     private static boolean active;
+    // Объекты для отправки и получения UDP сообщений
     private static UDPSender sender;
     private static UDPReader reader;
+    // Менеджер команд
     private final CommandManager commandManager;
+    // Провайдер ввода-вывода
     private final IOProvider provider;
+    // Сканнер для считывания ввода с консоли
     private final Scanner scanner;
+    // Стек для хранения истории команд
     private final LinkedList<String> commandsStack;
+    // Флаг авторизации пользователя
     private boolean authorized;
+    // Логин и пароль пользователя
     private String login;
     private String password;
 
+    // Конструктор класса Console
     public Console(CommandManager commandManager, UDPSender sender, UDPReader reader, IOProvider provider) {
         this.scanner = new Scanner(System.in);
         Console.active = true;
@@ -45,14 +55,18 @@ public class Console {
         Console.reader = reader;
     }
 
+    // Метод для остановки консоли
     public static void stop() {
         active = false;
         logger.info("Console stopped.");
     }
 
+    // Метод для выполнения команды
     public static void executeCommand(CommandShallow shallow, IOProvider provider, CommandManager commandManager) throws IOException {
+        // Проверка, содержит ли команда 'add' или является ли она 'update'
         if (shallow.getCommand().contains("add") || shallow.getCommand().equals("update")) {
             try {
+                // Создание объекта StudyGroup через парсер
                 StudyGroup sg = new SGParser(provider.getScanner(), provider.getPrinter(), provider.isPrintValue()).parseStudyGroup();
                 sg.setLogin(shallow.getLogin());
                 shallow.setStudyGroup(sg);
@@ -63,6 +77,7 @@ public class Console {
             }
         }
 
+        // Сериализация команды и отправка её через UDP
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(baos)) {
 
@@ -73,6 +88,7 @@ public class Console {
             logger.debug("Sending command {}: {} bytes", shallow.getCommand(), arr.length);
             sender.send(arr);
 
+            // Чтение ответа от сервера
             Response response = reader.readResponse();
             handleResponse(response);
 
@@ -82,24 +98,29 @@ public class Console {
         }
     }
 
+    // Метод для обработки ответа от сервера
     private static void handleResponse(Response response) throws IOException, ClassNotFoundException {
         String responseMessage = new String(response.getMessage().getBytes(), Charset.defaultCharset());
 
+        // Если ответ состоит из нескольких частей
         if (response.getResponseNumber() > 1) {
             responseMessage = handleMultipleResponses(response);
         }
 
+        // Если команда "exit", остановка консоли
         if ("exit".equals(responseMessage)) {
             Console.stop();
         }
         System.out.println(responseMessage);
     }
 
+    // Метод для обработки множественных ответов
     private static String handleMultipleResponses(Response initialResponse) throws IOException, ClassNotFoundException {
         ArrayList<Response> responses = new ArrayList<>();
         responses.add(initialResponse);
         int rcount = 1;
 
+        // Чтение всех частей ответа
         while (rcount < initialResponse.getResponseNumber()) {
             try {
                 responses.add(reader.readResponse());
@@ -111,6 +132,7 @@ public class Console {
             }
         }
 
+        // Сборка частей ответа в один
         if (rcount == initialResponse.getResponseNumber()) {
             responses.sort(Comparator.comparingInt(Response::getResponseCount));
             int messageLength = responses.stream().mapToInt(r -> r.getMessage().length()).sum();
@@ -125,18 +147,22 @@ public class Console {
         }
     }
 
+    // Метод для получения провайдера
     public IOProvider getProvider() {
         return provider;
     }
 
+    // Метод для проверки активности консоли
     public boolean isActive() {
         return active;
     }
 
+    // Метод для получения сканера
     public Scanner getScanner() {
         return scanner;
     }
 
+    // Метод для запуска консоли
     public void start(UDPConnector connector) {
         logger.info("Starting console and connecting to server...");
         if (connector.connect()) {
@@ -150,12 +176,14 @@ public class Console {
         }
     }
 
+    // Метод для печати строки в консоль
     public void print(String line) {
         if (line != null) {
             System.out.print(line);
         }
     }
 
+    // Метод для печати строки с новой строки в консоль
     public void println(String line) {
         if (line != null) {
             System.out.println(line);
@@ -164,6 +192,7 @@ public class Console {
         }
     }
 
+    // Метод для чтения и выполнения команды с консоли
     public void readCommand(IOProvider provider) {
         logger.debug("Awaiting command input...");
         System.out.print("Введите команду (или help): ");
@@ -212,6 +241,7 @@ public class Console {
         }
     }
 
+    // Метод для проверки аргументов команды
     private boolean argCheck(String name, String arg) {
         if ((name.equals("execute_script") || name.equals("count_less_than_group_admin")) && !arg.isEmpty()) {
             return true;

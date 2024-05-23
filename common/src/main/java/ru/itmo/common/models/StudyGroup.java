@@ -59,7 +59,7 @@ public class StudyGroup implements Serializable, Comparable<StudyGroup> {
     }
 
     public boolean validate() {
-        return id > 0 && validateName(name) && coordinates != null && coordinates.validate() && creationDate != null &&
+        return  validateName(name) && coordinates != null && coordinates.validate() && creationDate != null &&
                 validateStudentsCount(studentsCount) && validateExpelledStudents(expelledStudents) &&
                 (shouldBeExpelled == 0 || validateShouldBeExpelled(shouldBeExpelled)) &&
                 validateFormOfEducation(formOfEducation) && groupAdmin != null && groupAdmin.validate();

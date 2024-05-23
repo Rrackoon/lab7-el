@@ -39,21 +39,22 @@ public class UDPServer extends Thread {
         try {
             while (true) {
                 try {
+                    // Ожидание событий на селекторе
                     if (connector.getSelector().select() > 0) {
                         logger.debug("In read");
-                        Set<SelectionKey> keys = connector.getSelector().selectedKeys();
+                        Set<SelectionKey> keys = connector.getSelector().selectedKeys(); // Получение ключей событий
                         Iterator<SelectionKey> iterator = keys.iterator();
                         while (iterator.hasNext()) {
                             SelectionKey key = iterator.next();
                             if (key.isReadable()) {
                                 try {
-                                    key.interestOps(key.interestOps() & ~SelectionKey.OP_READ);
-                                    new UDPReader(key, handlerPool, senderPool).start();
+                                    key.interestOps(key.interestOps() & ~SelectionKey.OP_READ); // Установка операций интереса
+                                    new UDPReader(key, handlerPool, senderPool).start(); // Запуск нового потока для чтения данных
                                 } catch (Exception e) {
                                     logger.error("Can't read request: {}", e.getMessage(), e);
                                 }
                             }
-                            iterator.remove(); // Don't forget to remove the key from the set
+                            iterator.remove();
                         }
                         logger.debug("End of cycle");
                     }

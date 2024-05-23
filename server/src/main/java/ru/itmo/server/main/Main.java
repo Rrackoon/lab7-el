@@ -23,7 +23,6 @@ public class Main {
 
     public static void main(String[] args) throws InputArgumentException, IOException {
         logger.info("Запуск сервера");
-        final String FILENAME = System.getenv("FILENAME");
         DatabaseConnector databaseConnector;
         CollectionManager collection;
         try {
