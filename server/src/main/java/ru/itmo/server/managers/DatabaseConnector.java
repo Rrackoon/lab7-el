@@ -47,7 +47,7 @@ public class DatabaseConnector implements Accessible {
     }
 
     public DatabaseConnector() throws SQLException, SQLTimeoutException {
-        this("pg", "postgres", "admin");
+        connection = DriverManager.getConnection("jdbc:postgresql://pg:5432/studs");
     }
 
     public static void clear() throws SQLException {

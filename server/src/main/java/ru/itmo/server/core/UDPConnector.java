@@ -23,7 +23,7 @@ public class UDPConnector {
             channel = DatagramChannel.open();
             selector = Selector.open();
             socket = channel.socket();
-            SocketAddress address = new InetSocketAddress(9999);
+            SocketAddress address = new InetSocketAddress(3940);
             socket.bind(address);
             channel.configureBlocking(false);
             channel.register(selector, SelectionKey.OP_READ);

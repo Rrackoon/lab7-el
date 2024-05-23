@@ -35,7 +35,7 @@ public class Main {
         Console console = new Console(commandmanager, sender, reader, provider);
         String[] comnames = {"help", "info", "show", "add", "update", "remove_by_id", "clear",
                 "execute_script", "exit", "add_if_min", "count_less_than_group_admin", "update",
-                "print_asceding", "remove_first", "login", "remove"};
+                "print_asceding", "remove_first", "login", "register"};
         Command[] coms = {new Help(), new Info(), new Show(), new Add(), new Update(),
                 new RemoveById(), new Clear(), new ExecuteScript(), new Exit(),
                 new AddIfMin(), new CountLesAdminName(), new Update(), new PrintAsceding(), new RemoveFirst(), new LogIn(), new Register()};

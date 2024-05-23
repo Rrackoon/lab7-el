@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.23</version> <!-- Убедитесь, что используете подходящую версию -->
+            <version>42.7.3</version> <!-- Replace with the latest version available -->
         </dependency>
     </dependencies>
 
