@@ -27,6 +27,7 @@ public class Add extends Command {
             response[0] = "Нарушена уникальность passportID: " + studyGroup.getGroupAdmin().getPassportID();
         } else if (!studyGroup.validate()) {
             response[0] = "Группа не валидна";
+            System.out.println(studyGroup);
         } else {
             try {
                 collectionManager.push(studyGroup);
